@@ -1,0 +1,14 @@
+# PT backup directory
+.pt/
+
+# Ignore Sublime Text project files
+*.sublime-*
+
+# Added entries (1 items)
+*.exe
+
+# Added entries (1 items)
+*.ini
+
+# Added entries (1 items)
+GEMINI.md

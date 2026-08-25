@@ -1,0 +1,6 @@
+[auth]
+host = 222.222.222.5
+port = 81
+username = admin
+password = hackme
+scheme = http
