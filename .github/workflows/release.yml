@@ -40,6 +40,11 @@ jobs:
             export GOARCH=$arch
             export CGO_ENABLED=0
             
+            EXTRA_FLAGS=""
+            if [ "$os" == "android" ]; then
+              EXTRA_FLAGS="-buildmode=pie"
+            fi
+
             if [ "$arch" == "arm" ]; then
               export GOARM=$arg
               OUT_NAME="adguard-cli-${os}-${arch}v${arg}${ext}"
@@ -48,7 +53,7 @@ jobs:
             fi
 
             echo "Building ${OUT_NAME}..."
-            go build -ldflags="-s -w" -o "release_dist/${OUT_NAME}" .
+            go build $EXTRA_FLAGS -ldflags="-s -w" -o "release_dist/${OUT_NAME}" .
           done
 
       - name: Generate Checksums

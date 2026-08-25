@@ -62,7 +62,13 @@ jobs:
             BIN_NAME="${BIN_NAME}v${{ matrix.goarm }}"
           fi
           BIN_NAME="${BIN_NAME}${{ matrix.ext }}"
-          go build -ldflags="-s -w" -o "dist/${BIN_NAME}" .
+
+          EXTRA_FLAGS=""
+          if [ "${{ matrix.goos }}" == "android" ]; then
+            EXTRA_FLAGS="-buildmode=pie"
+          fi
+
+          go build $EXTRA_FLAGS -ldflags="-s -w" -o "dist/${BIN_NAME}" .
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
