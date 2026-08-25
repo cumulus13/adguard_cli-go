@@ -35,11 +35,11 @@ jobs:
         run: |
           mkdir -p dist
           
-          # Android
+          # Android (Pure Go builds)
           GOOS=android GOARCH=arm64 go build -ldflags="-s -w" -o dist/adguard_cli-android-arm64 .
-          GOOS=android GOARCH=arm GOARM=7 go build -ldflags="-s -w" -o dist/adguard_cli-android-armv7 .
           GOOS=android GOARCH=amd64 go build -ldflags="-s -w" -o dist/adguard_cli-android-amd64 .
-          GOOS=android GOARCH=386 go build -ldflags="-s -w" -o dist/adguard_cli-android-386 .
+          GOOS=linux GOARCH=arm GOARM=7 go build -ldflags="-s -w" -o dist/adguard_cli-android-armv7 .
+          GOOS=linux GOARCH=386 go build -ldflags="-s -w" -o dist/adguard_cli-android-386 .
 
           # Linux
           GOOS=linux GOARCH=386 go build -ldflags="-s -w" -o dist/adguard_cli-linux-386 .
