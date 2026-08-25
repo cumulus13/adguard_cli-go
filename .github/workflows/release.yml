@@ -35,10 +35,12 @@ jobs:
         run: |
           mkdir -p dist
           
-          # Android (Pure Go builds)
+          # Android Targets
+          # Native pure Go Android target
           GOOS=android GOARCH=arm64 go build -ldflags="-s -w" -o dist/adguard_cli-android-arm64 .
-          GOOS=android GOARCH=amd64 go build -ldflags="-s -w" -o dist/adguard_cli-android-amd64 .
+          # Linux kernel targets fully compatible with Android/Termux environments
           GOOS=linux GOARCH=arm GOARM=7 go build -ldflags="-s -w" -o dist/adguard_cli-android-armv7 .
+          GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o dist/adguard_cli-android-amd64 .
           GOOS=linux GOARCH=386 go build -ldflags="-s -w" -o dist/adguard_cli-android-386 .
 
           # Linux
