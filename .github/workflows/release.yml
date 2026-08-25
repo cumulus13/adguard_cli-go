@@ -1,70 +1,50 @@
-name: GitHub Release
+name: Release
 
 on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
-  build-release:
-    name: Build & Publish Assets
+  publish-release:
+    name: Publish Multi-Platform Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          clean: true
+          fetch-depth: 0
 
-      - name: Set up Go
+      - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: 'stable'
+          cache: false
 
-      - name: Build All Release Targets
+      - name: Download Modules
+        run: go mod download
+
+      - name: Build Binaries
+        env:
+          CGO_ENABLED: 0
         run: |
-          mkdir -p release_dist
-          
-          targets=(
-            "linux/amd64"
-            "linux/arm64"
-            "linux/arm/7"
-            "android/arm64"
-            "android/arm/7"
-            "darwin/amd64"
-            "darwin/arm64"
-            "windows/amd64/.exe"
-          )
-
-          for target in "${targets[@]}"; do
-            IFS="/" read -r os arch arg ext <<< "$target"
-            
-            export GOOS=$os
-            export GOARCH=$arch
-            export CGO_ENABLED=0
-            
-            EXTRA_FLAGS=""
-            if [ "$os" == "android" ]; then
-              EXTRA_FLAGS="-buildmode=pie"
-            fi
-
-            if [ "$arch" == "arm" ]; then
-              export GOARM=$arg
-              OUT_NAME="adguard-cli-${os}-${arch}v${arg}${ext}"
-            else
-              OUT_NAME="adguard-cli-${os}-${arch}${arg}"
-            fi
-
-            echo "Building ${OUT_NAME}..."
-            go build $EXTRA_FLAGS -ldflags="-s -w" -o "release_dist/${OUT_NAME}" .
-          done
-
-      - name: Generate Checksums
-        run: |
-          cd release_dist
-          sha256sum * > checksums.txt
+          mkdir -p dist
+          GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o dist/adguard_cli-linux-amd64 .
+          GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -o dist/adguard_cli-linux-arm64 .
+          GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -o dist/adguard_cli-darwin-amd64 .
+          GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o dist/adguard_cli-darwin-arm64 .
+          GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o dist/adguard_cli-windows-amd64.exe .
+          GOOS=windows GOARCH=arm64 go build -ldflags="-s -w" -o dist/adguard_cli-windows-arm64.exe .
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: release_dist/*
+          files: dist/*
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
